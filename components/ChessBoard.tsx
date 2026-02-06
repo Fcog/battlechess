@@ -16,10 +16,10 @@ export function ChessBoard() {
     (sourceSquare: string, targetSquare: string) => {
       const gameInstance = new Chess(fen);
       const move = gameInstance.move({
-        from: sourceSquare as Parameters<typeof gameInstance.move>[0]["from"],
-        to: targetSquare as Parameters<typeof gameInstance.move>[0]["to"],
+        from: sourceSquare,
+        to: targetSquare,
         promotion: "q",
-      });
+      } as { from: string; to: string; promotion?: string });
       if (move) {
         setFen(gameInstance.fen());
         return true;
@@ -34,7 +34,9 @@ export function ChessBoard() {
       options={{
         position: fen,
         onPieceDrop: ({ sourceSquare, targetSquare }) =>
-          onPieceDrop(sourceSquare, targetSquare),
+          sourceSquare != null && targetSquare != null
+            ? onPieceDrop(sourceSquare, targetSquare)
+            : false,
         boardOrientation: "white",
         allowDragging: !isGameOver,
       }}
