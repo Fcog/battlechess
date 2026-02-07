@@ -50,3 +50,16 @@ export function isWhitePiece(fen: string, square: string): boolean {
   const piece = game.get(square as Parameters<typeof game.get>[0]);
   return piece?.color === "w";
 }
+
+/** Returns the list of square IDs that the piece on fromSquare can move to. */
+export function getLegalTargetSquares(
+  fen: string,
+  fromSquare: string
+): string[] {
+  const game = new Chess(fen);
+  const moves = game.moves({
+    verbose: true,
+    square: fromSquare as Parameters<typeof game.moves>[0]["square"],
+  });
+  return moves.map((m) => m.to);
+}

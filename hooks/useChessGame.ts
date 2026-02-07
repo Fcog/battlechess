@@ -5,6 +5,7 @@ import { Chess } from "chess.js";
 import {
   STARTING_FEN,
   getGameResult,
+  type LastMove,
   type PendingPromotion,
   type PromotionPiece,
 } from "@/lib/chess";
@@ -19,6 +20,8 @@ export function useChessGame() {
   const [fen, setFen] = useState(STARTING_FEN);
   const [pendingPromotion, setPendingPromotion] =
     useState<PendingPromotion | null>(null);
+  const [lastMove, setLastMove] = useState<LastMove | null>(null);
+  const [draggingFrom, setDraggingFrom] = useState<string | null>(null);
 
   const game = new Chess(fen);
   const isGameOver = game.isGameOver();
@@ -34,6 +37,7 @@ export function useChessGame() {
       const newFen = tryApplyMove(fen, sourceSquare, targetSquare);
       if (newFen) {
         setFen(newFen);
+        setLastMove({ from: sourceSquare, to: targetSquare });
         return true;
       }
       return false;
@@ -50,7 +54,13 @@ export function useChessGame() {
         pendingPromotion.to,
         piece
       );
-      if (newFen) setFen(newFen);
+      if (newFen) {
+        setFen(newFen);
+        setLastMove({
+          from: pendingPromotion.from,
+          to: pendingPromotion.to,
+        });
+      }
       setPendingPromotion(null);
     },
     [fen, pendingPromotion]
@@ -69,6 +79,9 @@ export function useChessGame() {
     turn,
     isGameOver,
     gameResult,
+    lastMove,
+    draggingFrom,
+    setDraggingFrom,
     pendingPromotion,
     isWhitePromotion,
     onPieceDrop,

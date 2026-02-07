@@ -1,8 +1,17 @@
 "use client";
 
+import { useMemo } from "react";
 import { Chessboard } from "react-chessboard";
 import { PromotionModal } from "@/components/PromotionModal";
 import { useChessGame } from "@/hooks/useChessGame";
+import { getLegalTargetSquares } from "@/lib/chessMoves";
+
+const LAST_MOVE_HIGHLIGHT = {
+  backgroundColor: "rgba(255, 213, 0, 0.4)",
+};
+const LEGAL_TARGET_HIGHLIGHT = {
+  backgroundColor: "rgba(0, 128, 0, 0.35)",
+};
 
 export function ChessBoard() {
   const {
@@ -10,6 +19,9 @@ export function ChessBoard() {
     turn,
     isGameOver,
     gameResult,
+    lastMove,
+    draggingFrom,
+    setDraggingFrom,
     pendingPromotion,
     isWhitePromotion,
     onPieceDrop,
@@ -18,6 +30,21 @@ export function ChessBoard() {
   } = useChessGame();
 
   const statusLabel = gameResult ?? (turn === "w" ? "White to move" : "Black to move");
+
+  const squareStyles = useMemo(() => {
+    const styles: Record<string, React.CSSProperties> = {};
+    if (lastMove) {
+      styles[lastMove.from] = LAST_MOVE_HIGHLIGHT;
+      styles[lastMove.to] = LAST_MOVE_HIGHLIGHT;
+    }
+    if (draggingFrom) {
+      const legalSquares = getLegalTargetSquares(fen, draggingFrom);
+      legalSquares.forEach((sq) => {
+        if (!styles[sq]) styles[sq] = LEGAL_TARGET_HIGHLIGHT;
+      });
+    }
+    return styles;
+  }, [fen, lastMove, draggingFrom]);
 
   return (
     <div className="relative flex w-full min-h-0 min-w-0 flex-col">
@@ -35,10 +62,16 @@ export function ChessBoard() {
         <Chessboard
         options={{
           position: fen,
-          onPieceDrop: ({ sourceSquare, targetSquare }) =>
-            sourceSquare != null && targetSquare != null
-              ? onPieceDrop(sourceSquare, targetSquare)
-              : false,
+          squareStyles,
+          onPieceDrag: ({ square }) => setDraggingFrom(square),
+          onPieceDrop: ({ sourceSquare, targetSquare }) => {
+            const result =
+              sourceSquare != null && targetSquare != null
+                ? onPieceDrop(sourceSquare, targetSquare)
+                : false;
+            setDraggingFrom(null);
+            return result;
+          },
           boardOrientation: "white",
           allowDragging: !isGameOver && !pendingPromotion,
           boardStyle: {

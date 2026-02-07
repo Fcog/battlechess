@@ -7,6 +7,9 @@ export const STARTING_FEN =
 /** Describes a move that is waiting for a promotion piece choice. */
 export type PendingPromotion = { from: string; to: string };
 
+/** Last move played (for highlighting). */
+export type LastMove = { from: string; to: string };
+
 export type PromotionPiece = "q" | "r" | "b" | "n";
 
 /** Returns a human-readable game result, or null if the game is not over. */
