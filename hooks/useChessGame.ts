@@ -17,6 +17,15 @@ export function useChessGame() {
   const isGameOver = game.isGameOver();
   const turn = game.turn();
 
+  const gameResult = (() => {
+    if (!game.isGameOver()) return null;
+    if (game.isCheckmate())
+      return game.turn() === "b" ? "White wins by checkmate" : "Black wins by checkmate";
+    if (game.isStalemate()) return "Stalemate (draw)";
+    if (game.isDraw()) return "Draw";
+    return null;
+  })();
+
   const onPieceDrop = useCallback(
     (sourceSquare: string, targetSquare: string) => {
       const gameInstance = new Chess(fen);
@@ -76,6 +85,7 @@ export function useChessGame() {
     fen,
     turn,
     isGameOver,
+    gameResult,
     pendingPromotion,
     isWhitePromotion,
     onPieceDrop,

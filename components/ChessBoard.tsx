@@ -9,6 +9,7 @@ export function ChessBoard() {
     fen,
     turn,
     isGameOver,
+    gameResult,
     pendingPromotion,
     isWhitePromotion,
     onPieceDrop,
@@ -16,15 +17,19 @@ export function ChessBoard() {
     handlePromotionCancel,
   } = useChessGame();
 
-  const turnLabel = turn === "w" ? "White to move" : "Black to move";
+  const statusLabel = gameResult ?? (turn === "w" ? "White to move" : "Black to move");
 
   return (
     <div className="relative flex h-full w-full min-h-0 min-w-0 flex-col">
       <p
-        className="shrink-0 py-1.5 text-center text-sm font-medium text-zinc-600 dark:text-zinc-400"
+        className={`shrink-0 py-1.5 text-center text-sm font-medium ${
+          gameResult != null
+            ? "text-zinc-900 dark:text-zinc-100 font-semibold"
+            : "text-zinc-600 dark:text-zinc-400"
+        }`}
         aria-live="polite"
       >
-        {turnLabel}
+        {statusLabel}
       </p>
       <div className="relative min-h-0 flex-1 w-full">
         <Chessboard
