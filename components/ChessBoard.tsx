@@ -7,6 +7,7 @@ import { useChessGame } from "@/hooks/useChessGame";
 export function ChessBoard() {
   const {
     fen,
+    turn,
     isGameOver,
     pendingPromotion,
     isWhitePromotion,
@@ -15,9 +16,18 @@ export function ChessBoard() {
     handlePromotionCancel,
   } = useChessGame();
 
+  const turnLabel = turn === "w" ? "White to move" : "Black to move";
+
   return (
-    <div className="relative h-full w-full min-h-0 min-w-0">
-      <Chessboard
+    <div className="relative flex h-full w-full min-h-0 min-w-0 flex-col">
+      <p
+        className="shrink-0 py-1.5 text-center text-sm font-medium text-zinc-600 dark:text-zinc-400"
+        aria-live="polite"
+      >
+        {turnLabel}
+      </p>
+      <div className="relative min-h-0 flex-1 w-full">
+        <Chessboard
         options={{
           position: fen,
           onPieceDrop: ({ sourceSquare, targetSquare }) =>
@@ -41,6 +51,7 @@ export function ChessBoard() {
           onCancel={handlePromotionCancel}
         />
       )}
+      </div>
     </div>
   );
 }

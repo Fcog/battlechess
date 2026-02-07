@@ -15,6 +15,7 @@ export function useChessGame() {
 
   const game = new Chess(fen);
   const isGameOver = game.isGameOver();
+  const turn = game.turn();
 
   const onPieceDrop = useCallback(
     (sourceSquare: string, targetSquare: string) => {
@@ -73,6 +74,7 @@ export function useChessGame() {
 
   return {
     fen,
+    turn,
     isGameOver,
     pendingPromotion,
     isWhitePromotion,
