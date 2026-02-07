@@ -25,9 +25,13 @@ export function tryApplyMove(
   from: string,
   to: string
 ): MoveResult | null {
-  const game = new Chess(fen);
-  const move = game.move({ from, to } as { from: string; to: string });
-  return move ? { newFen: game.fen(), san: move.san } : null;
+  try {
+    const game = new Chess(fen);
+    const move = game.move({ from, to } as { from: string; to: string });
+    return move ? { newFen: game.fen(), san: move.san } : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Applies a promotion move. Returns new FEN and SAN, or null if invalid. */
@@ -37,13 +41,17 @@ export function tryApplyPromotionMove(
   to: string,
   promotion: PromotionPiece
 ): MoveResult | null {
-  const game = new Chess(fen);
-  const move = game.move({
-    from,
-    to,
-    promotion,
-  } as { from: string; to: string; promotion: string });
-  return move ? { newFen: game.fen(), san: move.san } : null;
+  try {
+    const game = new Chess(fen);
+    const move = game.move({
+      from,
+      to,
+      promotion,
+    } as { from: string; to: string; promotion: string });
+    return move ? { newFen: game.fen(), san: move.san } : null;
+  } catch {
+    return null;
+  }
 }
 
 /** True if the piece on the given square in this position is white. */
