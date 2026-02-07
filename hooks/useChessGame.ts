@@ -4,9 +4,16 @@ import { useState, useCallback } from "react";
 import { Chess } from "chess.js";
 import {
   STARTING_FEN,
+  getGameResult,
   type PendingPromotion,
   type PromotionPiece,
 } from "@/lib/chess";
+import {
+  isPromotionMove,
+  tryApplyMove,
+  tryApplyPromotionMove,
+  isWhitePiece,
+} from "@/lib/chessMoves";
 
 export function useChessGame() {
   const [fen, setFen] = useState(STARTING_FEN);
@@ -16,37 +23,17 @@ export function useChessGame() {
   const game = new Chess(fen);
   const isGameOver = game.isGameOver();
   const turn = game.turn();
-
-  const gameResult = (() => {
-    if (!game.isGameOver()) return null;
-    if (game.isCheckmate())
-      return game.turn() === "b" ? "White wins by checkmate" : "Black wins by checkmate";
-    if (game.isStalemate()) return "Stalemate (draw)";
-    if (game.isDraw()) return "Draw";
-    return null;
-  })();
+  const gameResult = getGameResult(game);
 
   const onPieceDrop = useCallback(
     (sourceSquare: string, targetSquare: string) => {
-      const gameInstance = new Chess(fen);
-      const piece = gameInstance.get(
-        sourceSquare as Parameters<typeof gameInstance.get>[0]
-      );
-      const targetRank = targetSquare[1];
-      const isPromotion =
-        piece?.type === "p" && (targetRank === "8" || targetRank === "1");
-
-      if (isPromotion) {
+      if (isPromotionMove(fen, sourceSquare, targetSquare)) {
         setPendingPromotion({ from: sourceSquare, to: targetSquare });
         return false;
       }
-
-      const move = gameInstance.move({
-        from: sourceSquare,
-        to: targetSquare,
-      } as { from: string; to: string });
-      if (move) {
-        setFen(gameInstance.fen());
+      const newFen = tryApplyMove(fen, sourceSquare, targetSquare);
+      if (newFen) {
+        setFen(newFen);
         return true;
       }
       return false;
@@ -57,15 +44,13 @@ export function useChessGame() {
   const handlePromotionChoose = useCallback(
     (piece: PromotionPiece) => {
       if (!pendingPromotion) return;
-      const gameInstance = new Chess(fen);
-      const move = gameInstance.move({
-        from: pendingPromotion.from,
-        to: pendingPromotion.to,
-        promotion: piece,
-      } as { from: string; to: string; promotion: string });
-      if (move) {
-        setFen(gameInstance.fen());
-      }
+      const newFen = tryApplyPromotionMove(
+        fen,
+        pendingPromotion.from,
+        pendingPromotion.to,
+        piece
+      );
+      if (newFen) setFen(newFen);
       setPendingPromotion(null);
     },
     [fen, pendingPromotion]
@@ -77,9 +62,7 @@ export function useChessGame() {
 
   const isWhitePromotion =
     pendingPromotion != null &&
-    new Chess(fen).get(
-      pendingPromotion.from as Parameters<Chess["get"]>[0]
-    )?.color === "w";
+    isWhitePiece(fen, pendingPromotion.from);
 
   return {
     fen,
