@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Chess } from "chess.js";
 import {
   STARTING_FEN,
@@ -18,11 +18,20 @@ import {
 
 export type UseChessGameOptions = {
   onMove?: () => void;
+  /** When provided, game state is initialized and synced from this FEN (e.g. from API). */
+  initialFen?: string | null;
 };
 
 export function useChessGame(options?: UseChessGameOptions) {
   const onMove = options?.onMove;
-  const [fen, setFen] = useState(STARTING_FEN);
+  const initialFen = options?.initialFen;
+  const [fen, setFen] = useState(initialFen ?? STARTING_FEN);
+
+  useEffect(() => {
+    if (initialFen != null && initialFen !== "") {
+      setFen(initialFen);
+    }
+  }, [initialFen]);
   const [pendingPromotion, setPendingPromotion] =
     useState<PendingPromotion | null>(null);
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
