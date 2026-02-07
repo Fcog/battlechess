@@ -16,7 +16,12 @@ import {
   isWhitePiece,
 } from "@/lib/chessMoves";
 
-export function useChessGame() {
+export type UseChessGameOptions = {
+  onMove?: () => void;
+};
+
+export function useChessGame(options?: UseChessGameOptions) {
+  const onMove = options?.onMove;
   const [fen, setFen] = useState(STARTING_FEN);
   const [pendingPromotion, setPendingPromotion] =
     useState<PendingPromotion | null>(null);
@@ -40,11 +45,12 @@ export function useChessGame() {
         setFen(result.newFen);
         setLastMove({ from: sourceSquare, to: targetSquare });
         setHistory((prev) => [...prev, result.san]);
+        onMove?.();
         return true;
       }
       return false;
     },
-    [fen]
+    [fen, onMove]
   );
 
   const handlePromotionChoose = useCallback(
@@ -63,10 +69,11 @@ export function useChessGame() {
           to: pendingPromotion.to,
         });
         setHistory((prev) => [...prev, result.san]);
+        onMove?.();
       }
       setPendingPromotion(null);
     },
-    [fen, pendingPromotion]
+    [fen, pendingPromotion, onMove]
   );
 
   const handlePromotionCancel = useCallback(() => {

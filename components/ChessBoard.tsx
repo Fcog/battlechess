@@ -89,6 +89,8 @@ export function ChessBoard({
           },
           boardOrientation,
           allowDragging: !isGameOver && !pendingPromotion,
+          showAnimations: true,
+          animationDurationInMs: 150,
           boardStyle: {
             width: "100%",
             height: "100%",

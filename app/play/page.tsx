@@ -6,9 +6,10 @@ import { BoardOrientationToggle } from "@/components/BoardOrientationToggle";
 import { ChessBoard } from "@/components/ChessBoard";
 import { MoveList } from "@/components/MoveList";
 import { useChessGame } from "@/hooks/useChessGame";
+import { playMoveSound } from "@/lib/moveSound";
 
 export default function PlayPage() {
-  const game = useChessGame();
+  const game = useChessGame({ onMove: playMoveSound });
   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">("white");
 
   return (
