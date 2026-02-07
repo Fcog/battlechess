@@ -23,6 +23,7 @@ export type ChessBoardProps = {
   setDraggingFrom: (square: string | null) => void;
   pendingPromotion: PendingPromotion | null;
   isWhitePromotion: boolean;
+  boardOrientation?: "white" | "black";
   onPieceDrop: (sourceSquare: string, targetSquare: string) => boolean;
   handlePromotionChoose: (piece: PromotionPiece) => void;
   handlePromotionCancel: () => void;
@@ -38,6 +39,7 @@ export function ChessBoard({
   setDraggingFrom,
   pendingPromotion,
   isWhitePromotion,
+  boardOrientation = "white",
   onPieceDrop,
   handlePromotionChoose,
   handlePromotionCancel,
@@ -85,7 +87,7 @@ export function ChessBoard({
             setDraggingFrom(null);
             return result;
           },
-          boardOrientation: "white",
+          boardOrientation,
           allowDragging: !isGameOver && !pendingPromotion,
           boardStyle: {
             width: "100%",

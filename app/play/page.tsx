@@ -1,16 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { BoardOrientationToggle } from "@/components/BoardOrientationToggle";
 import { ChessBoard } from "@/components/ChessBoard";
 import { MoveList } from "@/components/MoveList";
 import { useChessGame } from "@/hooks/useChessGame";
 
 export default function PlayPage() {
   const game = useChessGame();
+  const [boardOrientation, setBoardOrientation] = useState<"white" | "black">("white");
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-zinc-50 dark:bg-zinc-900">
-      <header className="flex shrink-0 items-center justify-between px-4 py-3">
+      <header className="flex shrink-0 items-center justify-between gap-2 px-4 py-3">
         <Link
           href="/"
           className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -20,7 +23,10 @@ export default function PlayPage() {
         <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
           Play (local)
         </h1>
-        <div className="w-12" />
+        <BoardOrientationToggle
+          value={boardOrientation}
+          onChange={setBoardOrientation}
+        />
       </header>
       <div className="flex min-h-0 flex-1 flex-col items-center gap-4 overflow-auto p-4">
         <div
@@ -40,6 +46,7 @@ export default function PlayPage() {
             setDraggingFrom={game.setDraggingFrom}
             pendingPromotion={game.pendingPromotion}
             isWhitePromotion={game.isWhitePromotion}
+            boardOrientation={boardOrientation}
             onPieceDrop={game.onPieceDrop}
             handlePromotionChoose={game.handlePromotionChoose}
             handlePromotionCancel={game.handlePromotionCancel}
