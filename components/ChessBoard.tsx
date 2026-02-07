@@ -3,8 +3,8 @@
 import { useMemo } from "react";
 import { Chessboard } from "react-chessboard";
 import { PromotionModal } from "@/components/PromotionModal";
-import { useChessGame } from "@/hooks/useChessGame";
 import { getLegalTargetSquares } from "@/lib/chessMoves";
+import type { LastMove, PendingPromotion, PromotionPiece } from "@/lib/chess";
 
 const LAST_MOVE_HIGHLIGHT = {
   backgroundColor: "rgba(255, 213, 0, 0.4)",
@@ -13,22 +13,35 @@ const LEGAL_TARGET_HIGHLIGHT = {
   backgroundColor: "rgba(0, 128, 0, 0.35)",
 };
 
-export function ChessBoard() {
-  const {
-    fen,
-    turn,
-    isGameOver,
-    gameResult,
-    lastMove,
-    draggingFrom,
-    setDraggingFrom,
-    pendingPromotion,
-    isWhitePromotion,
-    onPieceDrop,
-    handlePromotionChoose,
-    handlePromotionCancel,
-  } = useChessGame();
+export type ChessBoardProps = {
+  fen: string;
+  turn: "w" | "b";
+  isGameOver: boolean;
+  gameResult: string | null;
+  lastMove: LastMove | null;
+  draggingFrom: string | null;
+  setDraggingFrom: (square: string | null) => void;
+  pendingPromotion: PendingPromotion | null;
+  isWhitePromotion: boolean;
+  onPieceDrop: (sourceSquare: string, targetSquare: string) => boolean;
+  handlePromotionChoose: (piece: PromotionPiece) => void;
+  handlePromotionCancel: () => void;
+};
 
+export function ChessBoard({
+  fen,
+  turn,
+  isGameOver,
+  gameResult,
+  lastMove,
+  draggingFrom,
+  setDraggingFrom,
+  pendingPromotion,
+  isWhitePromotion,
+  onPieceDrop,
+  handlePromotionChoose,
+  handlePromotionCancel,
+}: ChessBoardProps) {
   const statusLabel = gameResult ?? (turn === "w" ? "White to move" : "Black to move");
 
   const squareStyles = useMemo(() => {

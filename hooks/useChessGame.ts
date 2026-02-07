@@ -22,6 +22,7 @@ export function useChessGame() {
     useState<PendingPromotion | null>(null);
   const [lastMove, setLastMove] = useState<LastMove | null>(null);
   const [draggingFrom, setDraggingFrom] = useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
 
   const game = new Chess(fen);
   const isGameOver = game.isGameOver();
@@ -34,10 +35,11 @@ export function useChessGame() {
         setPendingPromotion({ from: sourceSquare, to: targetSquare });
         return false;
       }
-      const newFen = tryApplyMove(fen, sourceSquare, targetSquare);
-      if (newFen) {
-        setFen(newFen);
+      const result = tryApplyMove(fen, sourceSquare, targetSquare);
+      if (result) {
+        setFen(result.newFen);
         setLastMove({ from: sourceSquare, to: targetSquare });
+        setHistory((prev) => [...prev, result.san]);
         return true;
       }
       return false;
@@ -48,18 +50,19 @@ export function useChessGame() {
   const handlePromotionChoose = useCallback(
     (piece: PromotionPiece) => {
       if (!pendingPromotion) return;
-      const newFen = tryApplyPromotionMove(
+      const result = tryApplyPromotionMove(
         fen,
         pendingPromotion.from,
         pendingPromotion.to,
         piece
       );
-      if (newFen) {
-        setFen(newFen);
+      if (result) {
+        setFen(result.newFen);
         setLastMove({
           from: pendingPromotion.from,
           to: pendingPromotion.to,
         });
+        setHistory((prev) => [...prev, result.san]);
       }
       setPendingPromotion(null);
     },
@@ -82,6 +85,7 @@ export function useChessGame() {
     lastMove,
     draggingFrom,
     setDraggingFrom,
+    history,
     pendingPromotion,
     isWhitePromotion,
     onPieceDrop,
